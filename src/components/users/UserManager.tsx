@@ -7,7 +7,7 @@ import { deleteUser } from "@/app/(dashboard)/users/actions";
 
 interface UserData {
   id: string;
-  name: string;
+  name: string | null;
   email: string;
   role: string;
 }

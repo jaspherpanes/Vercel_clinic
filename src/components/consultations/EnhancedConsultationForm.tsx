@@ -16,7 +16,8 @@ import {
   CheckCircle,
   Loader2,
   ChevronRight,
-  ArrowLeft
+  ArrowLeft,
+  Trash2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createConsultation, updateConsultation } from "@/app/(dashboard)/consultations/actions";
@@ -53,7 +54,7 @@ export function EnhancedConsultationForm({ patient, doctors, consultation }: Enh
     const height = parseFloat(vitals.height) / 100; // to meters
     if (weight > 0 && height > 0) {
       const bmi = (weight / (height * height)).toFixed(1);
-      setVitals(prev => ({ ...prev, bmi }));
+      setVitals((prev: any) => ({ ...prev, bmi }));
     }
   }, [vitals.weight, vitals.height]);
 
@@ -187,7 +188,7 @@ export function EnhancedConsultationForm({ patient, doctors, consultation }: Enh
                   <label className="text-xs font-bold text-slate-500 uppercase">🩺 Chief Complaint (CC)</label>
                   <input 
                     name="chiefComplaint" 
-                    defaultValue={consultation?.chiefComplaint}
+                    defaultValue={consultation?.chiefComplaint || ""}
                     placeholder="e.g. Severe pain on both ankles after fall" 
                     className="w-full px-4 py-2 rounded-lg border border-slate-200 outline-none focus:ring-2 focus:ring-primary-500"
                   />
@@ -305,15 +306,15 @@ export function EnhancedConsultationForm({ patient, doctors, consultation }: Enh
                 <div className="space-y-3">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase">Primary Diagnosis</label>
-                    <input name="diagnosis" defaultValue={consultation?.diagnosis} required className="w-full px-4 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-primary-500" placeholder="e.g. Bilateral ankle sprain" />
+                    <input name="diagnosis" defaultValue={consultation?.diagnosis || ""} required className="w-full px-4 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-primary-500" placeholder="e.g. Bilateral ankle sprain" />
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase">Secondary Diagnoses</label>
-                    <input name="secondaryDiag" defaultValue={consultation?.secondaryDiag} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-sm outline-none" />
+                    <input name="secondaryDiag" defaultValue={consultation?.secondaryDiag || ""} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-sm outline-none" />
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase">ICD Codes</label>
-                    <input name="icdCodes" defaultValue={consultation?.icdCodes} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-sm outline-none" placeholder="e.g. S93.4" />
+                    <input name="icdCodes" defaultValue={consultation?.icdCodes || ""} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-sm outline-none" placeholder="e.g. S93.4" />
                   </div>
                 </div>
               </div>
@@ -440,7 +441,7 @@ export function EnhancedConsultationForm({ patient, doctors, consultation }: Enh
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500">Instructions</label>
-                    <input name="followUpNotes" defaultValue={consultation?.followUpNotes} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" placeholder="e.g. R.I.C.E" />
+                    <input name="followUpNotes" defaultValue={consultation?.followUpNotes || ""} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" placeholder="e.g. R.I.C.E" />
                   </div>
                 </div>
               </div>
@@ -459,7 +460,7 @@ export function EnhancedConsultationForm({ patient, doctors, consultation }: Enh
                 </h3>
                 <textarea 
                   name="privateNotes" 
-                  defaultValue={consultation?.privateNotes}
+                  defaultValue={consultation?.privateNotes || ""}
                   rows={6} 
                   className="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm outline-none bg-slate-50 focus:bg-white focus:ring-2 focus:ring-slate-900 transition-all" 
                   placeholder="Notes not visible to patient..." 

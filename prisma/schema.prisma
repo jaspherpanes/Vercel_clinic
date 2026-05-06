@@ -130,6 +130,9 @@ model Billing {
   paymentMethod  String?      // CASH, GCASH, MAYA, CARD
   status         String       @default("UNPAID") // PAID, UNPAID, PARTIAL
   notes          String?
+  hmoProvider    String?      // Maxicare, Medicard, IntelliCare, PhilHealth, etc.
+  hmoApprovalCode String?
+  hmoCoverage    Float        @default(0)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 

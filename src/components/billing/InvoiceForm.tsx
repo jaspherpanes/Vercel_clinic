@@ -17,7 +17,7 @@ import { createBilling } from "@/app/(dashboard)/billing/actions";
 import { useRouter } from "next/navigation";
 
 interface InvoiceFormProps {
-  patients: { id: string; firstName: string; lastName: string; address?: string }[];
+  patients: { id: string; firstName: string; lastName: string; address?: string | null }[];
   consultations?: any[];
 }
 
@@ -32,6 +32,7 @@ export function InvoiceForm({ patients, consultations }: InvoiceFormProps) {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [amountPaid, setAmountPaid] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
+  const [hmoCoverage, setHmoCoverage] = useState(0);
 
   // Calculate Totals
   const subtotal = items.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0);
@@ -45,7 +46,7 @@ export function InvoiceForm({ patients, consultations }: InvoiceFormProps) {
     }
   }, [subtotal, discountType]);
 
-  const grandTotal = subtotal - discountAmount;
+  const grandTotal = subtotal - discountAmount - hmoCoverage;
   const change = amountPaid > grandTotal ? amountPaid - grandTotal : 0;
 
   const addItem = () => setItems([...items, { description: "", quantity: 1, unitPrice: 0, category: "OTHER" }]);
@@ -59,6 +60,7 @@ export function InvoiceForm({ patients, consultations }: InvoiceFormProps) {
     formData.append("items", JSON.stringify(items));
     formData.append("discountAmount", discountAmount.toString());
     formData.append("amountPaid", amountPaid.toString());
+    formData.append("hmoCoverage", hmoCoverage.toString());
 
     try {
       await createBilling(formData);
@@ -111,6 +113,25 @@ export function InvoiceForm({ patients, consultations }: InvoiceFormProps) {
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Invoice Date</label>
                   <input type="date" defaultValue={new Date().toISOString().split('T')[0]} className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-primary-500 text-sm font-medium" />
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">HMO Provider</label>
+                  <select name="hmoProvider" className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-primary-500 text-sm font-medium">
+                    <option value="">No HMO</option>
+                    <option value="MAXICARE">Maxicare</option>
+                    <option value="MEDICARD">Medicard</option>
+                    <option value="INTELLICARE">IntelliCare</option>
+                    <option value="CARITAS">Caritas Health Shield</option>
+                    <option value="VALUCARE">ValuCare</option>
+                    <option value="PHILHEALTH">PhilHealth</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">HMO Approval Code</label>
+                  <input name="hmoApprovalCode" placeholder="LOA / Approval #" className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-primary-500 text-sm font-medium" />
                 </div>
               </div>
             </div>
@@ -230,6 +251,15 @@ export function InvoiceForm({ patients, consultations }: InvoiceFormProps) {
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-black text-primary-500 uppercase tracking-widest">Discount</span>
                   <span className="font-bold text-red-400">- ₱{discountAmount.toLocaleString()}</span>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">HMO Coverage (₱)</label>
+                  <input 
+                    type="number" 
+                    value={hmoCoverage}
+                    onChange={(e) => setHmoCoverage(parseFloat(e.target.value) || 0)}
+                    className="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-2 text-sm font-bold outline-none focus:ring-2 focus:ring-primary-500" 
+                  />
                 </div>
                 <div className="flex justify-between items-end">
                   <span className="text-sm font-black uppercase tracking-widest text-slate-400 mb-1">Grand Total</span>

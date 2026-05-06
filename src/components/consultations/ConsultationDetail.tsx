@@ -151,13 +151,13 @@ export function ConsultationDetail({ consultation }: ConsultationDetailProps) {
                 Physical Examination
               </h3>
               <div className="space-y-4">
-                {Object.entries(physicalExam).map(([key, value]) => value && (
+                {Object.entries(physicalExam as Record<string, any>).map(([key, value]) => value && (
                   <div key={key}>
                     <label className="text-[10px] font-bold text-primary-600 uppercase block mb-1">{key}</label>
-                    <p className="text-sm text-slate-700">{value as string}</p>
+                    <p className="text-sm text-slate-700">{String(value)}</p>
                   </div>
                 ))}
-                {!Object.values(physicalExam).some(v => v) && <p className="text-sm text-slate-400 italic">No physical exam findings recorded.</p>}
+                {!Object.values(physicalExam as Record<string, any>).some(v => v) && <p className="text-sm text-slate-400 italic">No physical exam findings recorded.</p>}
               </div>
             </div>
 

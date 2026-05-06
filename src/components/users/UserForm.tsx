@@ -7,7 +7,7 @@ import { Loader2, UserPlus, Save, X, Shield } from "lucide-react";
 interface UserFormProps {
   user?: {
     id: string;
-    name: string;
+    name: string | null;
     email: string;
     role: string;
   };
@@ -52,7 +52,7 @@ export function UserForm({ user, onClose }: UserFormProps) {
             <label className="text-xs font-bold text-slate-500 uppercase">Full Name</label>
             <input
               name="name"
-              defaultValue={user?.name}
+              defaultValue={user?.name || ""}
               required
               className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none"
             />

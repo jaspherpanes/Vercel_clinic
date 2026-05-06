@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       const matches = pastConsultations
         .filter(c => c.embedding)
         .map(c => ({
-          content: `Symptoms: ${c.symptoms}. Diagnosis: ${c.diagnosis}. Treatment: ${c.treatment}.`,
+          content: `Complaint: ${c.chiefComplaint}. Diagnosis: ${c.diagnosis}. Plan: ${c.treatmentPlan}.`,
           score: cosineSimilarity(queryEmbedding, JSON.parse(c.embedding!.embedding))
         }))
         .sort((a, b) => b.score - a.score)
