@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String
+  role      String   @default("STAFF") // ADMIN, STAFF
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Patient {
+  id          String   @id @default(cuid())
+  firstName   String
+  lastName    String
+  dateOfBirth DateTime
+  gender      String
+  contactInfo String?
+  address     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  consultations Consultation[]
+  prescriptions Prescription[]
+  billings      Billing[]
+  aiLogs        AILog[]
+}
+
+model Doctor {
+  id             String   @id @default(cuid())
+  firstName      String
+  lastName       String
+  specialty      String
+  contactInfo    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  consultations  Consultation[]
+  prescriptions  Prescription[]
+  aiLogs         AILog[]
+}
+
+model Consultation {
+  id             String   @id @default(cuid())
+  patientId      String
+  doctorId       String
+  date           DateTime @default(now())
+  
+  // 🧾 Patient & Visit Info
+  visitType      String   @default("NEW") // NEW, FOLLOW_UP, EMERGENCY
+  
+  // 🩺 Chief Complaint
+  chiefComplaint String?
+  
+  // 📖 History of Present Illness (Stored as JSON or large text)
+  hpi            String?  // { onset, duration, severity, trigger, progression }
+  
+  // 🧍 Past Medical History
+  pastHistory    String?  // { illnesses, surgeries, allergies, currentMeds }
+  
+  // 📊 Vital Signs (Stored as JSON)
+  vitalSigns     String?  // { bp, hr, rr, temp, spo2, weight, height, bmi }
+  
+  // 🔍 Physical Examination
+  physicalExam   String?  // { general, musculoskeletal, neuro, cardio, etc }
+  
+  // 🧠 Assessment / Diagnosis
+  diagnosis      String?  // Primary diagnosis
+  secondaryDiag  String?
+  icdCodes       String?
+  
+  // 💊 Treatment Plan (Stored as JSON)
+  treatmentPlan  String?  // { medications: [], procedures: [], referrals: [] }
+  
+  // 📅 Follow-up
+  followUpDate   DateTime?
+  followUpNotes  String?
+  
+  // 🔐 Private Notes
+  privateNotes   String?
+  
+  // Status
+  status         String   @default("DRAFT") // DRAFT, COMPLETED
+  
+  // Metadata
+  attachments    String?  // JSON list of file URLs
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  patient        Patient  @relation(fields: [patientId], references: [id])
+  doctor         Doctor   @relation(fields: [doctorId], references: [id])
+  billing        Billing?
+  embedding      ConsultationEmbedding?
+}
+
+model Prescription {
+  id          String   @id @default(cuid())
+  patientId   String
+  doctorId    String
+  medications String   // Stored as JSON string
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  patient     Patient  @relation(fields: [patientId], references: [id])
+  doctor      Doctor   @relation(fields: [doctorId], references: [id])
+}
+
+model Billing {
+  id             String       @id @default(cuid())
+  invoiceNo      String?      @unique
+  orNo           String?      @unique
+  patientId      String
+  consultationId String?      @unique
+  subtotal       Float
+  discountType   String?      // SENIOR, PWD, PROMO, NONE
+  discountAmount Float        @default(0)
+  taxAmount      Float        @default(0)
+  totalAmount    Float
+  amountPaid     Float        @default(0)
+  balance        Float        @default(0)
+  paymentMethod  String?      // CASH, GCASH, MAYA, CARD
+  status         String       @default("UNPAID") // PAID, UNPAID, PARTIAL
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  patient        Patient      @relation(fields: [patientId], references: [id])
+  consultation   Consultation? @relation(fields: [consultationId], references: [id])
+  items          BillingItem[]
+}
+
+model BillingItem {
+  id          String   @id @default(cuid())
+  billingId   String
+  billing     Billing  @relation(fields: [billingId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Int      @default(1)
+  unitPrice   Float
+  subtotal    Float
+  category    String?  // CONSULTATION, PROCEDURE, LAB, MEDICATION, OTHER
+  createdAt   DateTime @default(now())
+}
+
+model ConsultationEmbedding {
+  id             String       @id @default(cuid())
+  consultationId String       @unique
+  embedding      String       // Stored as JSON array string 
+  createdAt      DateTime     @default(now())
+
+  consultation   Consultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+}
+
+model AILog {
+  id             String       @id @default(cuid())
+  doctorId       String
+  patientId      String?
+  prompt         String
+  response       String
+  createdAt      DateTime     @default(now())
+
+  doctor         Doctor       @relation(fields: [doctorId], references: [id])
+  patient        Patient?     @relation(fields: [patientId], references: [id])
+}
